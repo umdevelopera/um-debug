@@ -1,0 +1,38 @@
+.um-debug .button > label {
+	vertical-align: inherit;
+}
+.um-debug input[type="number"],
+.um-debug input[type="text"]{
+	min-height: 28px;
+}
+
+.um-debug-radio {
+	border: 1px solid #8c8f94;
+	border-radius: 4px;
+	display: inline-block;
+	line-height: 2;
+	padding: 0 0.5em;
+}
+
+.umd-dump{
+	background-color: white;
+	box-sizing: border-box;
+	border-top: 2px solid darkred;
+	bottom: 0px;
+	height: 2em;
+	left: 0px;
+	overflow-y: hidden;
+	padding: 0.4em;
+	position: fixed;
+	width: 100%;
+	z-index: 9991;
+}
+.umd-dump:hover{
+	height: 60%;
+	overflow-y: auto;
+}
+.umd-dump > p{
+	color: darkred;
+	font-weight: bold;
+	margin: 0em;
+}
