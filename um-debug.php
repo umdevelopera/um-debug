@@ -7,17 +7,23 @@
  * Author URI:  https://github.com/umdevelopera
  * Text Domain: um-debug
  *
+ * Requires at least: 6.5
+ * Requires PHP: 7.4
  * Version: 1.5.0
- * Requires at least: 5.5
- * Requires PHP: 5.6
  *
- * @package UM Tools
+ * @package um_ext\um_debug
  */
 
 /**
  * The main class of the UM extension "Debug tools"
  */
 class umd {
+
+	private $debug_log;
+	private $hook_log;
+	private $mail_log;
+	private $profiling;
+	private $testing_page;
 
 	public function __construct() {
 
