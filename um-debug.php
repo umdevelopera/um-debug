@@ -6,18 +6,29 @@
  * Author:      umdevelopera
  * Author URI:  https://github.com/umdevelopera
  * Text Domain: um-debug
+ * Domain Path: /languages
  *
- * Version: 1.5.0
- * Requires at least: 5.5
- * Requires PHP: 5.6
+ * Requires at least: 6.5
+ * Requires PHP: 7.4
+ * Version: 1.5.1
  *
- * @package UM Tools
+ * @package um_ext\um_debug
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 /**
  * The main class of the UM extension "Debug tools"
  */
 class umd {
+
+	private $debug_log;
+	private $hook_log;
+	private $mail_log;
+	private $profiling;
+	private $testing_page;
 
 	public function __construct() {
 
@@ -101,8 +112,9 @@ class umd {
 		if ( empty( $_POST ) ) {
 			return;
 		}
-		foreach ( $_POST as $key => $value ) {
-			if ( !preg_match( '/^umd_/i', $key ) ) {
+		$input = map_deep( wp_unslash( $_POST ), 'sanitize_text_field' );
+		foreach ( $input as $key => $value ) {
+			if ( ! preg_match( '/^umd_/i', $key ) ) {
 				continue;
 			}
 			if ( is_string( $value ) && substr_count( $value, ',' ) ) {

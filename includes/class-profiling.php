@@ -13,6 +13,8 @@ namespace um_debug;
 
 /**
  * Class Profiling
+ *
+ * @package um_ext\um_debug
  */
 class Profiling {
 
@@ -24,9 +26,6 @@ class Profiling {
 
 	public function __construct() {
 
-		// Settings.
-		$this->log_debug_ip = (array) get_option( 'umd_log_debug_ip', '127.0.0.1' );
-
 		// Time.
 		$this->timestart = microtime( true );
 		$this->timelast  = $this->timestart;
@@ -34,7 +33,7 @@ class Profiling {
 		// Profiling.
 		add_action( 'umd_profiling', array( $this, 'save_microtime' ) );
 
-		// Show debug_backtrace in the footer
+		// Show debug_backtrace in the footer.
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			add_action( 'admin_footer', array( $this, 'show' ), 99 );
 			add_action( 'wp_footer', array( $this, 'show' ), 99 );
@@ -87,7 +86,9 @@ class Profiling {
 		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
 			return;
 		}
-		if ( ! in_array( $_SERVER['REMOTE_ADDR'], $this->log_debug_ip ) ) {
+
+		$debug_ip = (array) get_option( 'umd_log_debug_ip', '127.0.0.1' );
+		if ( ! in_array( $_SERVER['REMOTE_ADDR'], $debug_ip ) ) {
 			return;
 		}
 
@@ -95,7 +96,7 @@ class Profiling {
 			echo '<section class="umd-dump">';
 
 			if ( $this->dump ) {
-				echo '<p>' . __( 'UM Backtrace' ) . '</p>';
+				echo '<p>' . esc_html__( 'UM Backtrace', 'um-debug' ) . '</p>';
 				foreach ( $this->dump as $key => $value ) {
 					echo '<div class="umd-item">'
 						. "<p>Backtrace: $key</p>"
@@ -109,14 +110,14 @@ class Profiling {
 			}
 
 			if ( $this->prof ) {
-				echo '<p>' . __( 'UM Profiling' ) . '</p>';
+				echo '<p>' . esc_html__( 'UM Profiling', 'um-debug' ) . '</p>';
 				foreach ( $this->prof as $key => $value ) {
 					echo '<div class="umd-item">', "<p>$value</p>", '</div>';
 				}
 			}
 
 			if ( $this->vars ) {
-				echo '<p>' . __( 'UM Debug Vars' ) . '</p>';
+				echo '<p>' . esc_html__( 'UM Debug Vars', 'um-debug' ) . '</p>';
 				foreach ( $this->vars as $key => $value ) {
 					echo '<div class="umd-item">'
 						. "<p>Variable: $key</p>"
