@@ -27,7 +27,7 @@ Once the plugin is cloned, enter your site admin dashboard and go to _wp-admin >
 
 ### How to install from ZIP archive
 
-You can install this plugin from the [ZIP file](https://drive.google.com/file/d/1soiwjcvV8ZPzNtWVIG4ftHef1Y-61lNu/view) as any other plugin. Follow [this instruction](https://wordpress.org/support/article/managing-plugins/#upload-via-wordpress-admin).
+You can install this plugin from the [ZIP file](https://drive.google.com/file/d/12Ik962JkbyWtq3RT51PvU4NqHvx3bz0X/view) as any other plugin. Follow [this instruction](https://wordpress.org/support/article/managing-plugins/#upload-via-wordpress-admin).
 
 
 ## How to use
@@ -74,7 +74,7 @@ Click the **Clear log** button after testing a mail.
 
 ### How to execute custom code
 
-Go to _wp-admin > Tools > UM Testing Page_. Enter a code to the textarea and click the "Eval" button.
+Go to _wp-admin > Tools > UM Testing_. Enter a code to the textarea and click the "Eval" button.
 
 ### Functions for testing and profiling
 
@@ -89,6 +89,13 @@ Add `do_action('umd_profiling');` to the place in the code for which you want to
 Open new [issue](https://github.com/umdevelopera/um-debug/issues) if you are facing a problem or have a suggestion.
 
 ## Changelog
+
+### 1.5.1: November 17, 2024
+
+* Added: Code editor with PHP syntax highlighting to the "UM Testing" page.
+* Added: Ability to save the current code fragment.
+* Added: Language pattern for translation.
+* Fixed: PHP Deprecated creation of dynamic property.
 
 ### 1.5.0: October 8, 2024
 

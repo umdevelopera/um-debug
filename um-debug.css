@@ -4,6 +4,11 @@
 .um-debug input[type="number"],
 .um-debug input[type="text"]{
 	min-height: 28px;
+	padding: 0 8px;
+}
+
+.um-debug table th {
+	width: 120px;
 }
 
 .um-debug-radio {
@@ -12,6 +17,10 @@
 	display: inline-block;
 	line-height: 2;
 	padding: 0 0.5em;
+}
+.um-debug-number {
+	margin: 0;
+	width: 65px;
 }
 
 .umd-dump{

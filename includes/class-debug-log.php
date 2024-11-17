@@ -7,13 +7,15 @@ namespace um_debug;
 
 /**
  * Class Debug_Log
+ *
+ * @package um_ext\um_debug
  */
 class Debug_Log {
 
 	const LOCALHOST = '127.0.0.1';
 	const LOGFILEPATH = '/wp-content/debug.log';
 
-	private $log_debug_rows = 99;
+	private $logfilepath;
 
 	public function __construct() {
 
@@ -23,10 +25,6 @@ class Debug_Log {
 			file_put_contents( $this->logfilepath, '' );
 		}
 
-		// Settings.
-		$this->log_debug_ip = (array) get_option( 'umd_log_debug_ip', self::LOCALHOST );
-		$this->log_debug_rows = (int) get_option( 'umd_log_debug_rows', $this->log_debug_rows );
-
 		// Menu.
 		add_action( 'admin_menu', array( $this, 'add_submenu' ), 20 );
 
@@ -35,7 +33,7 @@ class Debug_Log {
 	}
 
 	public function add_submenu() {
-		add_management_page( __( 'UM Debug Log', 'um-debug' ), __( 'UM Debug Log', 'um-debug' ), 'administrator', 'um_debug_log', array( $this, 'render_debug_log_page' ) );
+		add_management_page( __( 'UM Debug Log', 'um-debug' ), __( 'UM Debug Log', 'um-debug' ), 'administrator', 'um_debug_log', array( $this, 'render_page' ) );
 	}
 
 	public function clear_debug_log() {
@@ -48,83 +46,107 @@ class Debug_Log {
 		}
 	}
 
+	public function color( &$text ) {
+		$text = str_replace(
+			array(
+				'PHP Fatal error',
+				'PHP Error',
+				'PHP Warning',
+				'PHP Deprecated',
+				'PHP Notice',
+			),
+			array(
+				'<span style="color:darkred;">PHP Fatal error</span>',
+				'<span style="color:darkred;">PHP Error</span>',
+				'<span style="color:darkgoldenrod;">PHP Warning</span>',
+				'<span style="color:darkgoldenrod;">PHP Deprecated</span>',
+				'<span style="color:darkblue;">PHP Notice</span>',
+			),
+			$text
+		);
+		return $text;
+	}
+
 	public function execute_handlers() {
 		if ( ! empty( $_REQUEST['action'] ) && 'clear_debug_log' === $_REQUEST['action'] ) {
 			$this->clear_debug_log();
 		}
 	}
 
-	public function render_debug_log_page() {
-		$filter_text = filter_input( 0, 'umd_log_debug_filter_text' );
-		if ( !$filter_text ) {
-			$filter_text = get_option( 'umd_log_debug_filter_text' );
-		}
-
-		if ( !file_exists( $this->logfilepath ) ) {
+	public function render_log() {
+		if ( ! file_exists( $this->logfilepath ) ) {
 			?>
 			<div class="notice notice-error is-dismissible">
-				<p><?php _e( 'No file "debug.log".', 'um-debug' ); ?></p>
+				<p><?php esc_html_e( 'No file "debug.log".', 'um-debug' ); ?></p>
 			</div>
 			<?php
-			$content = '';
-		} else {
-			$debug_log_arr = file( $this->logfilepath );
+			return;
+		}
+
+		$debug_rows  = (int) get_option( 'umd_log_debug_rows', 999 );
+		$filter_text = isset( $_POST[ 'umd_log_debug_filter_text' ] ) ? sanitize_text_field( $_POST[ 'umd_log_debug_filter_text' ] ) : get_option( 'umd_log_debug_filter_text' );
+
+		$debug_log_arr = file( $this->logfilepath );
+		if ( $filter_text ) {
 			foreach ( $debug_log_arr as $key => $value ) {
-				if ( $filter_text && !substr_count( $value, $filter_text ) ) {
-					unset( $debug_log_arr[$key] );
-				}
-				if ( substr_count( $value, 'PHP Error' ) ) {
-					$debug_log_arr[$key] = '<span style="color:darkred;">' . $debug_log_arr[$key] . '</span>';
-				}
-				if ( substr_count( $value, 'PHP Fatal error' ) ) {
-					$debug_log_arr[$key] = '<span style="color:darkred;">' . $debug_log_arr[$key] . '</span>';
-				}
-				if ( substr_count( $value, 'PHP Notice' ) ) {
-					$debug_log_arr[$key] = '<span style="color:darkblue;">' . $debug_log_arr[$key] . '</span>';
-				}
-				if ( substr_count( $value, 'PHP Warning' ) ) {
-					$debug_log_arr[$key] = '<span style="color:darkgoldenrod;">' . $debug_log_arr[$key] . '</span>';
+				if ( ! substr_count( $value, $filter_text ) ) {
+					unset( $debug_log_arr[ $key ] );
 				}
 			}
-
-			$content = implode( '</br>', array_slice( array_reverse( $debug_log_arr ), 0, $this->log_debug_rows ) );
 		}
+		if ( $debug_rows ) {
+			$debug_log_arr = array_slice( $debug_log_arr, -$debug_rows );
+		}
+		array_walk( $debug_log_arr, array( $this, 'color' ) );
+
+		echo implode( '</br>', $debug_log_arr );
+	}
+
+	public function render_page() {
+		$debug_rows  = (int) get_option( 'umd_log_debug_rows', 999 );
+		$debug_ip    = (array) get_option( 'umd_log_debug_ip', self::LOCALHOST );
+		$filter_text = isset( $_POST[ 'umd_log_debug_filter_text' ] ) ? sanitize_text_field( $_POST[ 'umd_log_debug_filter_text' ] ) : get_option( 'umd_log_debug_filter_text' );
+
+		wp_enqueue_style( 'um-debug' );
 		?>
 		<div class="wrap">
-			<h1 class="wp-heading-inline"><?php _e( 'UM Debug Log', 'um-debug' ); ?></h1>
-
+			<h1 class="wp-heading-inline"><?php esc_html_e( 'UM Debug Log', 'um-debug' ); ?></h1>
 			<form method="POST" class="um-debug">
 				<input type="hidden" name="page" value="um_debug_log">
 				<table class="widefat striped">
 					<thead>
 						<tr>
 						<th scope="row">
-						<label><?php _e( 'Actions' ); ?></label>
+						<label><?php esc_html_e( 'Actions', 'um-debug' ); ?></label>
 						</th>
 						<td>
-						<button type="submit" name="action" value="clear_debug_log" class="button button-primary"><?php _e( 'Clear log' ); ?></button>
-						<button type="submit" name="action" value="update_options" class="button button-primary"><?php _e( 'Save settings' ); ?></button>
+						<button type="submit" name="action" value="clear_debug_log" class="button button-primary"><?php esc_html_e( 'Clear log', 'um-debug' ); ?></button>
+						<label><input type="text" name="umd_log_debug_filter_text" value="<?php echo $filter_text; ?>" placeholder="<?php esc_attr_e( 'Filter text', 'um-debug' ); ?>" title="<?php esc_attr_e( 'Filter by text', 'um-debug' ); ?>" class="regular-input" /></label>
+						<button type="submit" name="action" value="filter_debug_log" class="button"><?php esc_html_e( 'Filter', 'um-debug' ); ?></button>
 						</td>
 						</tr>
 					</thead>
 					<tbody>
 						<tr>
 						<th scope="row">
-						<label><?php _e( 'Settings' ); ?></label>
+						<label><?php esc_html_e( 'Settings', 'um-debug' ); ?></label>
 						</th>
 						<td>
-						<label><input type="number"  name="umd_log_debug_rows" value="<?php echo $this->log_debug_rows; ?>" title="<?php _e( 'Show rows' ); ?>" class="small-text" /></label>
-						<label><input type="text"  name="umd_log_debug_ip" value="<?php echo implode( ',', $this->log_debug_ip ); ?>" title="<?php _e( 'IP for testing' ); ?>" class="regular-input" /></label>
-						<label><input type="text"  name="umd_log_debug_filter_text" value="<?php echo $filter_text; ?>" placeholder="<?php _e( 'Filter text' ); ?>" title="<?php _e( 'Filter by text' ); ?>" class="regular-input" /></label>
-						<button type="submit" name="action" value="filter_debug_log" class="button"><?php _e( 'Filter' ); ?></button>
+						<button type="submit" name="action" value="update_options" class="button button-primary"><?php esc_html_e( 'Save settings', 'um-debug' ); ?></button>
+						<label>
+							<?php esc_html_e( 'Host:', 'um-debug' ); ?>
+							<input type="text" name="umd_log_debug_ip" value="<?php echo implode( ',', $debug_ip ); ?>" title="<?php esc_attr_e( 'IP for testing', 'um-debug' ); ?>" class="regular-input" />
+						</label>
+						<label>
+							<?php esc_html_e( 'Rows:', 'um-debug' ); ?>
+							<input type="number" name="umd_log_debug_rows" value="<?php echo absint( $debug_rows ); ?>" title="<?php esc_attr_e( 'Show rows', 'um-debug' ); ?>" class="um-debug-number" />
+						</label>
 						</td>
 						</tr>
 					</tbody>
 				</table>
 			</form>
-			<br />
-
-			<?php echo $content; ?>
+			<?php $this->render_log(); ?>
 		</div>
 		<?php
 	}
