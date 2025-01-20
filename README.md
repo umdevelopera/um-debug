@@ -49,28 +49,25 @@ Go to *wp-admin > Tools > UM Debug Log* to view the _debug.log_ file records.
 Go to _wp-admin > Tools > UM Hook Log_.
 
 Turn **ON** the "Enable" setting. Turn **YES** the "Log backtrace" setting if you wish to log detailed info.
-
-List hooks you wish to investigate in the **Hooks** settings. You can list multiple hooks separated by commas.
-
+List hooks you wish to investigate in the **Hooks** setting. You can list multiple hooks separated by commas.
 Save settings.
 
 Do a test. You'll see the hook log records below the settings.
 
-Click the **Clear log** button after testing a hook.
+This tool may be helpful if you need to investigate a redirect. Add the `wp_redirect` hook to the **Hooks** setting then reproduce a redirect. You'll see a redirect backtrace.
+
+**Example 1:** Investigate a redirect.
+![UM Hooks Log](https://github.com/user-attachments/assets/25f70d1d-b575-499c-8ff0-5477d4aa6cec)
 
 ### How to log emails
 
 Go to _wp-admin > Tools > UM Mail Log_.
 
 Turn **ON** the "Enable" setting. Turn **YES** the "Log backtrace" setting if you wish to log detailed info.
-
 Filter a mail you wish to investigate using the **Conditions** settings. You can filter logging by a specific hook or the email subject. All mails will be logged if **Conditions** are empty.
-
 Save settings.
 
 Send email from the website. You'll see the mail log records below the settings.
-
-Click the **Clear log** button after testing a mail.
 
 ### How to execute custom code
 
