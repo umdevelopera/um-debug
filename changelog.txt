@@ -1,0 +1,34 @@
+## Changelog
+
+### 1.5.2: March 1, 2025
+
+* Tweak: Hide the "UM Debug Log" tab if debug log is disabled.
+
+### 1.5.1: November 17, 2024
+
+* Added: Code editor with PHP syntax highlighting to the "UM Testing" page.
+* Added: Ability to save the current code fragment.
+* Added: Language pattern for translation.
+* Fixed: PHP Deprecated creation of dynamic property.
+
+### 1.5.0: October 8, 2024
+
+* Optimized plugin structure
+* Updated documentation
+
+### 1.4.3: April 5, 2020
+
+* Fixed: Hook log settings
+
+### 1.4.2: March 28, 2020
+
+* Fixed: Frontend styles
+
+### 1.4.1: October 31, 2019
+
+* Added: Hook log
+
+### 1.4.0: October 30, 2019
+
+* Added: defined hooks
+* Added: options "Log mails after these hooks" and "Log mails with these subjects"

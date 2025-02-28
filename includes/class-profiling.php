@@ -57,18 +57,22 @@ class Profiling {
 
 	public function save_microtime( $key = null ) {
 
-		$timecurrent = microtime( true );
+		$timecurrent     = microtime( true );
 		$diff_from_start = number_format( $timecurrent - $this->timestart, 4 );
-		$diff_from_prev = number_format( $timecurrent - $this->timelast, 4 );
-		$text = "<code>$diff_from_start $diff_from_prev</code> - $key";
-		$this->timelast = $timecurrent;
+		$diff_from_prev  = number_format( $timecurrent - $this->timelast, 4 );
+		$this->timelast  = $timecurrent;
+
+		$text = "<code>$diff_from_start $diff_from_prev</code>";
+		if ( $key ) {
+			$text .= ' - ' . $key;
+		}
 
 		if ( empty( $key ) ) {
 			$this->prof[] = $text;
-		} elseif ( isset( $this->prof[$key] ) ) {
-			$this->prof[$key . count( $this->prof )] = $text;
+		} elseif ( empty( $this->prof[ $key ] ) ) {
+			$this->prof[ $key ] = $text;
 		} else {
-			$this->prof[$key] = $text;
+			$this->prof[ $key . count( $this->prof ) ] = $text;
 		}
 	}
 
@@ -92,46 +96,48 @@ class Profiling {
 			return;
 		}
 
-		if ( $this->dump || $this->prof || $this->vars ) {
-			echo '<section class="umd-dump">';
-
-			if ( $this->dump ) {
-				echo '<p>' . esc_html__( 'UM Backtrace', 'um-debug' ) . '</p>';
-				foreach ( $this->dump as $key => $value ) {
-					echo '<div class="umd-item">'
-						. "<p>Backtrace: $key</p>"
-						. '<div>';
-					foreach ( $value as $k => $v ) {
-						echo isset( $v['file'] ) ? "{$v['file']} : {$v['line']}<br />" : '';
-					}
-					echo '</div>'
-						. '</div>';
-				}
-			}
-
-			if ( $this->prof ) {
-				echo '<p>' . esc_html__( 'UM Profiling', 'um-debug' ) . '</p>';
-				foreach ( $this->prof as $key => $value ) {
-					echo '<div class="umd-item">', "<p>$value</p>", '</div>';
-				}
-			}
-
-			if ( $this->vars ) {
-				echo '<p>' . esc_html__( 'UM Debug Vars', 'um-debug' ) . '</p>';
-				foreach ( $this->vars as $key => $value ) {
-					echo '<div class="umd-item">'
-						. "<p>Variable: $key</p>"
-						. '<div>'
-						. '<pre>';
-					print_r( $value );
-					echo '</pre>'
-						. '</div>'
-						. '</div>';
-				}
-			}
-
-			echo '</section>';
+		if ( empty( $this->dump ) && empty( $this->prof ) && empty( $this->vars ) ) {
+			return;
 		}
+
+		echo '<section class="umd-dump">';
+
+		if ( $this->dump ) {
+			echo '<p>' . esc_html__( 'UM Backtrace', 'um-debug' ) . '</p>';
+			foreach ( $this->dump as $key => $value ) {
+				echo '<div class="umd-item">'
+					. "<p>Backtrace: $key</p>"
+					. '<div>';
+				foreach ( $value as $k => $v ) {
+					echo isset( $v['file'] ) ? "{$v['file']} : {$v['line']}<br />" : '';
+				}
+				echo '</div>'
+					. '</div>';
+			}
+		}
+
+		if ( $this->prof ) {
+			echo '<p>' . esc_html__( 'UM Profiling', 'um-debug' ) . '</p>';
+			foreach ( $this->prof as $key => $value ) {
+				echo '<div class="umd-item">' . $value . '</div>';
+			}
+		}
+
+		if ( $this->vars ) {
+			echo '<p>' . esc_html__( 'UM Debug Vars', 'um-debug' ) . '</p>';
+			foreach ( $this->vars as $key => $value ) {
+				echo '<div class="umd-item">'
+					. "<p>Variable: $key</p>"
+					. '<div>'
+					. '<pre>';
+				print_r( $value );
+				echo '</pre>'
+					. '</div>'
+					. '</div>';
+			}
+		}
+
+		echo '</section>';
 	}
 
 }

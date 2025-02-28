@@ -10,7 +10,7 @@
  *
  * Requires at least: 6.5
  * Requires PHP: 7.4
- * Version: 1.5.1
+ * Version: 1.5.2
  *
  * @package um_ext\um_debug
  */
@@ -20,9 +20,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * The main class of the UM extension "Debug tools"
+ * The main class of the "UM Debug tools" plugin.
  */
-class umd {
+class UM_Debug {
 
 	private $debug_log;
 	private $hook_log;
@@ -40,7 +40,9 @@ class umd {
 		add_action( 'admin_init', array( $this, 'execute_handlers' ), 20 );
 
 		// UM Debug Log.
-		$this->debug_log();
+		if ( defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
+			$this->debug_log();
+		}
 
 		// UM Hook Log.
 		$this->hook_log();
@@ -127,27 +129,35 @@ class umd {
 
 }
 
+global $umd;
+$umd = new UM_Debug();
+
+/**
+ * Save variable to display it in the profiling section.
+ *
+ * @global \umd $umd
+ * @param mixed  $var       Variable data.
+ * @param string $key       Optional label for the variable.
+ * @param bool   $dublicate Save the variable again if it repeats. Default false.
+ * @return \umd
+ */
 function umd( $var = null, $key = null, $dublicate = false ) {
 	global $umd;
-
-	if ( empty( $umd ) ) {
-		$umd = new umd();
-	}
-
 	if ( ! is_null( $var ) ) {
 		$umd->profiling()->save_var( $var, $key, $dublicate );
 	}
-
 	return $umd;
 }
 
+/**
+ * Save current backtrace to display it in the profiling section.
+ *
+ * @param string $key Optional label for the backtrace.
+ * @return array Elements from debug_backtrace.
+ */
 function umdb( $key = null ) {
 	$backtrace = debug_backtrace( 2 );
 	array_shift( $backtrace );
-
 	umd()->profiling()->save_backtrace( $backtrace, $key );
-
 	return $backtrace;
 }
-
-umd();
