@@ -20,6 +20,20 @@ class Mail_Log {
 
 	private $logmailpath;
 
+	/**
+	 * Strips all HTML tags, replaces links with plain text.
+	 *
+	 * @param type $str
+	 * @return type
+	 */
+	static function strip_tags( $str ) {
+		$pattern     = '/<a.+?href="([^"]*)".*?>(.*?)<\/a>/is';
+		$replacement = '[$2]($1)';
+		$str2        = preg_replace( $pattern, $replacement, $str );
+		$str3        = wp_strip_all_tags( $str2, true );
+		return $str3;
+	}
+
 	public function __construct() {
 
 		// Files.
@@ -47,25 +61,44 @@ class Mail_Log {
 		// Log mails.
 		add_filter( 'wp_mail', array( $this, 'log_mail' ), 35 );
 
-		// Menu.
-		add_action( 'admin_menu', array( $this, 'add_submenu' ), 20 );
-
 		// Execute handlers.
 		add_action( 'admin_init', array( $this, 'execute_handlers' ), 20 );
 	}
 
-	public function add_submenu() {
-		add_management_page( __( 'UM Mail Log', 'um-debug' ), __( 'UM Mail Log', 'um-debug' ), 'administrator', 'um_mail_log', array( $this, 'render_page' ) );
-	}
-
+	/**
+	 * The "Clear log" button handler.
+	 */
 	public function clear_mail_log() {
 		if ( is_file( $this->logmailpath ) ) {
 			file_put_contents( $this->logmailpath, '' );
 
-			if ( wp_redirect( admin_url( 'tools.php?page=um_mail_log' ) ) ) {
+			if ( wp_redirect( admin_url( 'tools.php?page=um_debug&tab=mail_log' ) ) ) {
 				exit;
 			}
 		}
+	}
+
+	public function color( &$text ) {
+		$text = str_replace(
+			array(
+				'To:',
+				'Subject:',
+				'Message:',
+				'Headers:',
+				'Request:',
+				'Debug Backtrace:',
+			),
+			array(
+				'<span style="color:black;">To:</span>',
+				'<span style="color:black;">Subject:</span>',
+				'<span style="color:black;">Message:</span>',
+				'<span style="color:black;">Headers:</span>',
+				'<span style="color:black;">Request:</span>',
+				'<span style="color:black;">Debug Backtrace:</span>',
+			),
+			htmlspecialchars( $text )
+		);
+		return $text;
 	}
 
 	public function execute_handlers() {
@@ -95,7 +128,7 @@ class Mail_Log {
 	public function log_mail( $mail_info ) {
 
 		// Log mails with these subjects
-		if ( !$this->log_mails && $this->log_mails_subjects ) {
+		if ( ! $this->log_mails && $this->log_mails_subjects ) {
 			foreach ( $this->log_mails_subjects as $subject ) {
 				if ( $subject && substr_count( $mail_info['subject'], $subject ) ) {
 					$this->log_mails = true;
@@ -105,43 +138,40 @@ class Mail_Log {
 
 		if ( $this->log_mails ) {
 
-			$mailto = is_array( $mail_info['to'] ) ? implode( ', ', $mail_info['to'] ) : $mail_info['to'];
-
-			$subject = $mail_info['subject'];
-
-			$message = preg_replace( '/\s+/i', ' ', strip_tags( $mail_info['message'] ) );
-
-			$headers = is_array( $mail_info['headers'] ) ? implode( "\r\n", $mail_info['headers'] ) : trim( $mail_info['headers'] );
-
+			$mailto  = is_array( $mail_info['to'] ) ? implode( ', ', $mail_info['to'] ) : $mail_info['to'];
+			$subject = esc_html( $mail_info['subject'] );
+			$message = self::strip_tags( $mail_info['message'] );
 
 			$log = "\r\n"
 				. "[" . date( 'Y-m-d H:i:s' ) . "]\r\n"
 				. "To: $mailto\r\n"
 				. "Subject: $subject\r\n"
-				. "Message:\r\n"
-				. "$message\r\n";
+				. "Message: $message\r\n";
 
-			// Headers
-			if ( !empty( $headers ) ) {
-				$log .= "---\r\n"
-					. "Headers:\r\n"
-					. "$headers\r\n";
+			// Headers.
+			if ( ! empty( $mail_info['headers'] ) ) {
+				$headers = is_array( $mail_info['headers'] ) ? array_filter( $mail_info['headers'] ) : explode( "\n", str_replace( "\r\n", "\n", $mail_info['headers'] ) );
+				if ( ! empty( $headers ) ) {
+					$log .= "Headers:\r\n";
+					foreach ( array_filter( array_map( 'trim', $headers ) ) as $header ) {
+						$log .= "- $header\r\n";
+					}
+				}
 			}
 
-			// Request data
-			$log .= "---\r\n"
-				. "Request:\r\n"
-				. "REMOTE_ADDR: {$_SERVER['REMOTE_ADDR']}\r\n"
-				. "REQUEST_URI: {$_SERVER['REQUEST_URI']}\r\n";
+			// Request data.
+			$log .= "Request:\r\n"
+				. "- REMOTE_ADDR: {$_SERVER['REMOTE_ADDR']}\r\n"
+				. "- REQUEST_METHOD: {$_SERVER['REQUEST_METHOD']}\r\n"
+				. "- REQUEST_URI: {$_SERVER['REQUEST_URI']}\r\n";
 
-			// Debug Backtrace
+			// Debug Backtrace.
 			if ( $this->log_mails_backtrace ) {
-				$log .= "---\r\n"
-					. "Debug Backtrace:\r\n";
+				$log .= "Debug Backtrace:\r\n";
 				foreach ( debug_backtrace() as $value ) {
 					$text_file = isset( $value['file'] ) ? $value['file'] : '';
 					$text_line = isset( $value['line'] ) ? $value['line'] : '';
-					$log .= "  $text_file line $text_line\r\n";
+					$log .= "- $text_file line $text_line\r\n";
 				}
 			}
 
@@ -162,22 +192,29 @@ class Mail_Log {
 
 			default:
 				$log_arr = file( $this->logmailpath );
+				if ( empty( $log_arr ) ) {
+					?>
+						<p><?php esc_html_e( 'The log is empty.', 'um-debug' ); ?></p>
+					<?php
+					break;
+				}
+
 				$lines   = count( $log_arr );
 				$start   = max( 0, $lines - $this->log_mails_rows );
 				for ( $i = $start; $i < $lines; $i++ ) {
-					echo htmlspecialchars( $log_arr[$i] ) . '</br>';
+					echo $this->color( $log_arr[ $i ] ) . '<br>';
 				}
 				break;
 		}
 	}
 
+	/**
+	 * Render the tab.
+	 */
 	public function render_page() {
-		wp_enqueue_style( 'um-debug' );
 		?>
-		<div class="wrap">
-			<h1 class="wp-heading-inline"><?php esc_html_e( 'UM Mail Log', 'um-debug' ); ?></h1>
 			<form method="POST" class="um-debug">
-				<input type="hidden" name="page" value="um_mail_log">
+				<input type="hidden" name="page" value="um_debug">
 				<table class="widefat striped">
 					<thead>
 						<tr>
@@ -225,8 +262,12 @@ class Mail_Log {
 					</tbody>
 				</table>
 			</form>
-			<?php $this->render_log(); ?>
-		</div>
+			<div class="postbox">
+				<div class="postbox-header">
+					<h3 class="hndle"><?php esc_html_e( 'um_mail.log file', 'um-debug' ); ?></h3>
+				</div>
+				<div class="inside"><?php $this->render_log(); ?></div>
+			</div>
 		<?php
 	}
 

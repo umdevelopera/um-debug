@@ -1,5 +1,13 @@
 ## Changelog
 
+### 1.6.0: November 25, 2025
+
+* Tweak: The "Tools" menu sub-items have been replaced with tabs on the "UM Debug Tools" screen.
+* Tweak: Improved formatting and highlighting of the Hook Log.
+* Tweak: Improved formatting and highlighting of the Mail Log.
+* Added: The `Mail_Log::strip_tags()` method that strips all HTML tags, but replaces links with plain text.
+* Added: The "Profiling" tab.
+
 ### 1.5.2: March 1, 2025
 
 * Tweak: Hide the "UM Debug Log" tab if debug log is disabled.

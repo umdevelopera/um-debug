@@ -12,7 +12,6 @@ namespace um_debug;
  */
 class Debug_Log {
 
-	const LOCALHOST = '127.0.0.1';
 	const LOGFILEPATH = '/wp-content/debug.log';
 
 	private $logfilepath;
@@ -25,22 +24,18 @@ class Debug_Log {
 			file_put_contents( $this->logfilepath, '' );
 		}
 
-		// Menu.
-		add_action( 'admin_menu', array( $this, 'add_submenu' ), 20 );
-
 		// Execute handlers.
 		add_action( 'admin_init', array( $this, 'execute_handlers' ), 20 );
 	}
 
-	public function add_submenu() {
-		add_management_page( __( 'UM Debug Log', 'um-debug' ), __( 'UM Debug Log', 'um-debug' ), 'administrator', 'um_debug_log', array( $this, 'render_page' ) );
-	}
-
+	/**
+	 * The "Clear log" button handler.
+	 */
 	public function clear_debug_log() {
 		if ( is_file( $this->logfilepath ) ) {
 			file_put_contents( $this->logfilepath, '' );
 
-			if ( wp_redirect( admin_url( 'tools.php?page=um_debug_log' ) ) ) {
+			if ( wp_redirect( admin_url( 'tools.php?page=um_debug&tab=debug_log' ) ) ) {
 				exit;
 			}
 		}
@@ -83,36 +78,42 @@ class Debug_Log {
 			return;
 		}
 
-		$debug_rows  = (int) get_option( 'umd_log_debug_rows', 999 );
-		$filter_text = isset( $_POST[ 'umd_log_debug_filter_text' ] ) ? sanitize_text_field( $_POST[ 'umd_log_debug_filter_text' ] ) : get_option( 'umd_log_debug_filter_text' );
+		$log_arr = file( $this->logfilepath );
+		if ( empty( $log_arr ) ) {
+			?>
+				<p><?php esc_html_e( 'The log is empty.', 'um-debug' ); ?></p>
+			<?php
+			return;
+		}
 
-		$debug_log_arr = file( $this->logfilepath );
+		$filter_text = isset( $_POST[ 'umd_log_debug_filter_text' ] ) ? sanitize_text_field( $_POST[ 'umd_log_debug_filter_text' ] ) : get_option( 'umd_log_debug_filter_text' );
 		if ( $filter_text ) {
-			foreach ( $debug_log_arr as $key => $value ) {
+			foreach ( $log_arr as $key => $value ) {
 				if ( ! substr_count( $value, $filter_text ) ) {
-					unset( $debug_log_arr[ $key ] );
+					unset( $log_arr[ $key ] );
 				}
 			}
 		}
-		if ( $debug_rows ) {
-			$debug_log_arr = array_slice( $debug_log_arr, -$debug_rows );
-		}
-		array_walk( $debug_log_arr, array( $this, 'color' ) );
 
-		echo implode( '</br>', $debug_log_arr );
+		$debug_rows = (int) get_option( 'umd_log_debug_rows', 999 );
+		if ( $debug_rows ) {
+			$log_arr = array_slice( $log_arr, -$debug_rows );
+		}
+
+		array_walk( $log_arr, array( $this, 'color' ) );
+		echo implode( '<br>', $log_arr );
 	}
 
+	/**
+	 * Render the tab.
+	 */
 	public function render_page() {
 		$debug_rows  = (int) get_option( 'umd_log_debug_rows', 999 );
-		$debug_ip    = (array) get_option( 'umd_log_debug_ip', self::LOCALHOST );
 		$filter_text = isset( $_POST[ 'umd_log_debug_filter_text' ] ) ? sanitize_text_field( $_POST[ 'umd_log_debug_filter_text' ] ) : get_option( 'umd_log_debug_filter_text' );
 
-		wp_enqueue_style( 'um-debug' );
 		?>
-		<div class="wrap">
-			<h1 class="wp-heading-inline"><?php esc_html_e( 'UM Debug Log', 'um-debug' ); ?></h1>
 			<form method="POST" class="um-debug">
-				<input type="hidden" name="page" value="um_debug_log">
+				<input type="hidden" name="page" value="um_debug">
 				<table class="widefat striped">
 					<thead>
 						<tr>
@@ -134,10 +135,6 @@ class Debug_Log {
 						<td>
 						<button type="submit" name="action" value="update_options" class="button button-primary"><?php esc_html_e( 'Save settings', 'um-debug' ); ?></button>
 						<label>
-							<?php esc_html_e( 'Host:', 'um-debug' ); ?>
-							<input type="text" name="umd_log_debug_ip" value="<?php echo implode( ',', $debug_ip ); ?>" title="<?php esc_attr_e( 'IP for testing', 'um-debug' ); ?>" class="regular-input" />
-						</label>
-						<label>
 							<?php esc_html_e( 'Rows:', 'um-debug' ); ?>
 							<input type="number" name="umd_log_debug_rows" value="<?php echo absint( $debug_rows ); ?>" title="<?php esc_attr_e( 'Show rows', 'um-debug' ); ?>" class="um-debug-number" />
 						</label>
@@ -146,8 +143,12 @@ class Debug_Log {
 					</tbody>
 				</table>
 			</form>
-			<?php $this->render_log(); ?>
-		</div>
+			<div class="postbox">
+				<div class="postbox-header">
+					<h3 class="hndle"><?php esc_html_e( 'debug.log file', 'um-debug' ); ?></h3>
+				</div>
+				<div class="inside"><?php $this->render_log(); ?></div>
+			</div>
 		<?php
 	}
 
