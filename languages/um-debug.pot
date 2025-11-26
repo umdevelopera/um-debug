@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: UM Debug tools\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-11-17 19:21+0000\n"
+"POT-Creation-Date: 2025-11-26 11:20+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: \n"
@@ -16,45 +16,60 @@ msgstr ""
 "X-Loco-Version: 2.6.13; wp-6.7\n"
 "X-Domain: um-debug"
 
-#: includes/class-debug-log.php:120 includes/class-hook-log.php:130
-#: includes/class-mail-log.php:185 includes/class-testing.php:84
+#: includes/class-debug-log.php:121 includes/class-hook-log.php:149
+#: includes/class-mail-log.php:222 includes/class-testing.php:82
 msgid "Actions"
 msgstr ""
 
-#: includes/class-debug-log.php:123 includes/class-hook-log.php:133
-#: includes/class-mail-log.php:188
+#: includes/class-profiling.php:220
+msgid ""
+"At the bottom of the page you will see a collapsed panel. Hover over the "
+"panel to expand it."
+msgstr ""
+
+#: includes/class-debug-log.php:124 includes/class-hook-log.php:152
+#: includes/class-mail-log.php:225
 msgid "Clear log"
 msgstr ""
 
-#: includes/class-mail-log.php:218
+#: includes/class-testing.php:62
+msgid "Code output"
+msgstr ""
+
+#: includes/class-mail-log.php:255
 msgid "Conditions"
 msgstr ""
 
-#: includes/class-hook-log.php:145 includes/class-mail-log.php:201
+#: includes/class-debug-log.php:148
+msgid "debug.log file"
+msgstr ""
+
+#: includes/class-hook-log.php:164 includes/class-mail-log.php:238
+#: includes/class-profiling.php:192
 msgid "Enable:"
 msgstr ""
 
-#: includes/class-testing.php:88
+#: includes/class-testing.php:86
 msgid "Eval"
 msgstr ""
 
-#: includes/class-debug-log.php:125
+#: includes/class-debug-log.php:126
 msgid "Filter"
 msgstr ""
 
-#: includes/class-debug-log.php:124
+#: includes/class-debug-log.php:125
 msgid "Filter by text"
 msgstr ""
 
-#: includes/class-debug-log.php:124
+#: includes/class-debug-log.php:125
 msgid "Filter text"
 msgstr ""
 
-#: includes/class-hook-log.php:162
+#: includes/class-hook-log.php:181 includes/class-profiling.php:204
 msgid "Hooks"
 msgstr ""
 
-#: includes/class-debug-log.php:137
+#: includes/class-profiling.php:197
 msgid "Host:"
 msgstr ""
 
@@ -66,120 +81,152 @@ msgstr ""
 msgid "https://github.com/umdevelopera/um-debug"
 msgstr ""
 
-#: includes/class-debug-log.php:138
+#: includes/class-profiling.php:216
+msgid "Instruction"
+msgstr ""
+
+#: includes/class-profiling.php:198
 msgid "IP for testing"
 msgstr ""
 
-#: includes/class-mail-log.php:189
+#: includes/class-mail-log.php:226
 msgid "List \"to\""
 msgstr ""
 
-#: includes/class-hook-log.php:150 includes/class-mail-log.php:206
+#: includes/class-profiling.php:219
+msgid ""
+"List hooks you wish to use for profiling in the \"Set a timestamp after "
+"these hooks\". Separate multiple hooks with a comma."
+msgstr ""
+
+#: includes/class-hook-log.php:169 includes/class-mail-log.php:243
 msgid "Log backtrace:"
 msgstr ""
 
-#: includes/class-mail-log.php:221
+#: includes/class-mail-log.php:258
 msgid "Log mails after these hooks"
 msgstr ""
 
-#: includes/class-mail-log.php:222
+#: includes/class-mail-log.php:259
 msgid "Log mails with these subjects"
 msgstr ""
 
-#: includes/class-hook-log.php:165
+#: includes/class-hook-log.php:184
 msgid "Log these hooks"
 msgstr ""
 
-#: includes/class-hook-log.php:151 includes/class-mail-log.php:207
+#: includes/class-hook-log.php:170 includes/class-mail-log.php:244
 msgid "NO"
 msgstr ""
 
-#: includes/class-debug-log.php:80
+#: includes/class-debug-log.php:75
 msgid "No file \"debug.log\"."
 msgstr ""
 
-#: includes/class-hook-log.php:146 includes/class-mail-log.php:202
+#: includes/class-hook-log.php:165 includes/class-mail-log.php:239
+#: includes/class-profiling.php:193
 msgid "OFF"
 msgstr ""
 
-#: includes/class-hook-log.php:147 includes/class-mail-log.php:203
+#: includes/class-hook-log.php:166 includes/class-mail-log.php:240
+#: includes/class-profiling.php:194
 msgid "ON"
 msgstr ""
 
-#: includes/class-debug-log.php:141 includes/class-hook-log.php:155
-#: includes/class-mail-log.php:211
+#: includes/class-debug-log.php:138 includes/class-hook-log.php:174
+#: includes/class-mail-log.php:248
 msgid "Rows:"
 msgstr ""
 
-#: includes/class-testing.php:87
+#: includes/class-testing.php:85
 msgid "Save code"
 msgstr ""
 
-#: includes/class-debug-log.php:135 includes/class-hook-log.php:143
-#: includes/class-mail-log.php:199
+#: includes/class-debug-log.php:136 includes/class-hook-log.php:162
+#: includes/class-mail-log.php:236 includes/class-profiling.php:190
 msgid "Save settings"
 msgstr ""
 
-#: includes/class-debug-log.php:132 includes/class-hook-log.php:140
-#: includes/class-mail-log.php:196
+#: includes/class-profiling.php:207
+msgid "Set a timestamp after these hooks"
+msgstr ""
+
+#: includes/class-debug-log.php:133 includes/class-hook-log.php:159
+#: includes/class-mail-log.php:233 includes/class-profiling.php:187
 msgid "Settings"
 msgstr ""
 
-#: includes/class-debug-log.php:142 includes/class-hook-log.php:156
-#: includes/class-mail-log.php:212
+#: includes/class-profiling.php:208
+msgid "Show data in these hooks"
+msgstr ""
+
+#: includes/class-debug-log.php:139 includes/class-hook-log.php:175
+#: includes/class-mail-log.php:249
 msgid "Show rows"
 msgstr ""
 
 #. Description of the plugin
 msgid ""
-"Simple tool for logging and testing: Debug log, Hook log, Mail log, Eval. "
-"See the Tools menu."
+"Simple tool for logging and testing: Debug Log, Hook Log, Mail Log, "
+"Profiling, Test Code."
 msgstr ""
 
-#: includes/class-testing.php:95
+#: includes/class-testing.php:93
 msgid "Snippet"
 msgstr ""
 
-#: includes/class-profiling.php:99
+#: includes/class-debug-log.php:84 includes/class-hook-log.php:129
+#: includes/class-mail-log.php:197
+msgid "The log is empty."
+msgstr ""
+
+#: includes/class-profiling.php:153
+msgid "Time : Delta - Key"
+msgstr ""
+
+#: includes/class-profiling.php:138
 msgid "UM Backtrace"
 msgstr ""
 
-#: includes/class-debug-log.php:36 includes/class-debug-log.php:113
-msgid "UM Debug Log"
+#: includes/class-um-debug.php:52
+msgid "UM Debug"
 msgstr ""
 
 #. Name of the plugin
 msgid "UM Debug tools"
 msgstr ""
 
-#: includes/class-profiling.php:120
+#: includes/class-profiling.php:160
 msgid "UM Debug Vars"
 msgstr ""
 
-#: includes/class-hook-log.php:56 includes/class-hook-log.php:123
-msgid "UM Hook Log"
-msgstr ""
-
-#: includes/class-mail-log.php:58 includes/class-mail-log.php:178
-msgid "UM Mail Log"
-msgstr ""
-
-#: includes/class-profiling.php:113
+#: includes/class-profiling.php:152
 msgid "UM Profiling"
 msgstr ""
 
-#: includes/class-testing.php:21
-msgid "UM Testing"
+#: includes/class-hook-log.php:192
+msgid "um_hook.log file"
 msgstr ""
 
-#: includes/class-testing.php:76
-msgid "UM Testing Page"
+#: includes/class-mail-log.php:267
+msgid "um_mail.log file"
 msgstr ""
 
 #. Author of the plugin
 msgid "umdevelopera"
 msgstr ""
 
-#: includes/class-hook-log.php:152 includes/class-mail-log.php:208
+#: includes/class-hook-log.php:171 includes/class-mail-log.php:245
 msgid "YES"
+msgstr ""
+
+#: includes/class-profiling.php:221
+msgid ""
+"You can use the `umd` function to display a variable in the profiling panel."
+msgstr ""
+
+#: includes/class-profiling.php:222
+msgid ""
+"You can use the `umdb` function to display a backtrace in the profiling "
+"panel."
 msgstr ""

@@ -12,11 +12,11 @@ namespace um_debug;
  */
 class Mail_Log {
 
-	private $log_mails = true;
+	private $log_mails           = true;
 	private $log_mails_backtrace = false;
-	private $log_mails_hooks = array();
-	private $log_mails_subjects = array();
-	private $log_mails_rows = 99;
+	private $log_mails_hooks     = array();
+	private $log_mails_subjects  = array();
+	private $log_mails_rows      = 99;
 
 	private $logmailpath;
 

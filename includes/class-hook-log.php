@@ -12,14 +12,19 @@ namespace um_debug;
  */
 class Hook_Log {
 
-	private $log_hook = false;
+	private $log_hook           = false;
 	private $log_hook_backtrace = false;
-	private $log_hook_hooks = array();
-	private $log_hook_rows = 99;
+	private $log_hook_hooks     = array();
+	private $log_hook_rows      = 99;
 
 	private $loghookpath;
 
 	public function __construct() {
+
+		// ignore favicon.
+		if ( ! empty( $_SERVER['REQUEST_URI'] ) && strpos( $_SERVER['REQUEST_URI'], 'favicon.ico' ) ) {
+			return;
+		}
 
 		// Files.
 		$upload_dir        = wp_upload_dir();
@@ -29,18 +34,14 @@ class Hook_Log {
 		}
 
 		// Settings.
-		$this->log_hook = (int) get_option( 'umd_log_hook', $this->log_hook );
+		$this->log_hook           = (int) get_option( 'umd_log_hook', $this->log_hook );
 		$this->log_hook_backtrace = (int) get_option( 'umd_log_hook_backtrace', $this->log_hook_backtrace );
-		$this->log_hook_hooks = (array) get_option( 'umd_log_hook_hooks', $this->log_hook_hooks );
-		$this->log_hook_rows = (int) get_option( 'umd_log_hook_rows', $this->log_hook_rows );
+		$this->log_hook_hooks     = (array) get_option( 'umd_log_hook_hooks', $this->log_hook_hooks );
+		$this->log_hook_rows      = (int) get_option( 'umd_log_hook_rows', $this->log_hook_rows );
 
 		// Log these hooks.
 		if ( $this->log_hook ) {
-			if ( ! empty( $_SERVER['REQUEST_URI'] ) && strpos( $_SERVER['REQUEST_URI'], 'favicon.ico' ) ) {
-				return;
-			}
 			foreach ( (array) $this->log_hook_hooks as $hook ) {
-				add_action( $hook, array( $this, 'log_hook' ), 5, 5 );
 				add_filter( $hook, array( $this, 'log_hook' ), 5, 5 );
 			}
 		}
@@ -96,8 +97,8 @@ class Hook_Log {
 		// Arguments.
 		$args = func_get_args();
 		if ( $args ) {
-			$argsjson = json_encode( $args, JSON_UNESCAPED_SLASHES );
-			$log .= "Args: $argsjson\r\n";
+			$argsjson = wp_json_encode( $args, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES );
+			$log     .= "Args: $argsjson\r\n";
 		}
 
 		// Request data.
@@ -112,7 +113,7 @@ class Hook_Log {
 			foreach ( debug_backtrace() as $value ) {
 				$text_file = isset( $value['file'] ) ? $value['file'] : '';
 				$text_line = isset( $value['line'] ) ? $value['line'] : '';
-				$log .= "- $text_file line $text_line\r\n";
+				$log      .= "- $text_file line $text_line\r\n";
 			}
 		}
 

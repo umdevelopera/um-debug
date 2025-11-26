@@ -23,6 +23,7 @@ class Profiling {
 	private $profile_on    = 0;
 	private $profile_ip    = array( self::LOCALHOST );
 	private $profile_hooks = array( 'umd_profiling' );
+	private $profile_hdata = array();
 
 	private $timestart;
 	private $timelast;
@@ -37,6 +38,11 @@ class Profiling {
 		$this->profile_on    = (int) get_option( 'umd_profile_on', $this->profile_on );
 		$this->profile_ip    = (array) get_option( 'umd_profile_ip', $this->profile_ip );
 		$this->profile_hooks = (array) get_option( 'umd_profile_hooks', $this->profile_hooks );
+		$this->profile_hdata = (array) get_option( 'umd_profile_hdata', $this->profile_hdata );
+
+		if ( empty( $this->profile_on ) ) {
+			return;
+		}
 
 		// Set time.
 		$this->timestart = microtime( true );
@@ -45,14 +51,15 @@ class Profiling {
 		// Profile hooks.
 		foreach ( (array) $this->profile_hooks as $hook ) {
 			add_filter( $hook, function( $data ) {
-				$hook = current_filter();
-				$this->save_microtime( $hook );
+				$hook_name = current_filter();
+				$hook_data = in_array( $hook_name, $this->profile_hdata ) ? $data : null;
+				$this->save_microtime( $hook_name, $hook_data );
 				return $data;
 			}, 10 );
 		}
 
 		// Show debug_backtrace in the footer.
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+		if ( in_array( $_SERVER['REMOTE_ADDR'], $this->profile_ip ) ) {
 			add_action( 'admin_footer', array( $this, 'show' ), 99 );
 			add_action( 'wp_footer', array( $this, 'show' ), 99 );
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue' ), 20 );
@@ -73,7 +80,14 @@ class Profiling {
 		}
 	}
 
-	public function save_microtime( $key = null ) {
+	/**
+	 * Save the current Unix timestamp with microseconds.
+	 * This data will be displayed in the "UM Profiling" section.
+	 *
+	 * @param string $key  Hook name.
+	 * @param mixed  $data Hook data.
+	 */
+	public function save_microtime( $key = null, $data = null ) {
 
 		$timecurrent     = microtime( true );
 		$diff_from_start = number_format( $timecurrent - $this->timestart, 4 );
@@ -82,7 +96,11 @@ class Profiling {
 
 		$text = "<code>$diff_from_start : $diff_from_prev</code>";
 		if ( $key ) {
-			$text .= ' - ' . $key;
+			$text .= " - $key";
+		}
+		if ( $data ) {
+			$datajson = wp_json_encode( $data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES );
+			$text    .= " &raquo; <small>$datajson</small>";
 		}
 
 		if ( empty( $key ) ) {
@@ -188,6 +206,7 @@ class Profiling {
 						</th>
 						<td>
 							<textarea name="umd_profile_hooks" class="code medium-text" cols="35" rows="3" placeholder="<?php esc_attr_e( 'Set a timestamp after these hooks', 'um-debug' ); ?>" title="<?php esc_attr_e( 'Set a timestamp after these hooks', 'um-debug' ); ?>"><?php echo implode( ',', $this->profile_hooks ); ?></textarea>
+							<textarea name="umd_profile_hdata" class="code medium-text" cols="35" rows="3" placeholder="<?php esc_attr_e( 'Show data in these hooks', 'um-debug' ); ?>" title="<?php esc_attr_e( 'Show data in these hooks', 'um-debug' ); ?>"><?php echo implode( ',', $this->profile_hdata ); ?></textarea>
 						</td>
 						</tr>
 					</tbody>
@@ -199,7 +218,7 @@ class Profiling {
 				</div>
 				<div class="inside">
 					<p><?php esc_html_e( 'List hooks you wish to use for profiling in the "Set a timestamp after these hooks". Separate multiple hooks with a comma.', 'um-debug' ); ?></p>
-					<p><?php esc_html_e( 'At the bottom you will see a collapsed panel. Hover over the panel to expand it.', 'um-debug' ); ?></p>
+					<p><?php esc_html_e( 'At the bottom of the page you will see a collapsed panel. Hover over the panel to expand it.', 'um-debug' ); ?></p>
 					<p><?php esc_html_e( 'You can use the `umd` function to display a variable in the profiling panel.', 'um-debug' ); ?></p>
 					<p><?php esc_html_e( 'You can use the `umdb` function to display a backtrace in the profiling panel.', 'um-debug' ); ?></p>
 				</div>
